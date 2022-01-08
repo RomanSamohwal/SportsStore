@@ -16,10 +16,10 @@ export class AuthService {
   }
 
   get authenticated(): boolean {
-    return this.rest.auth_token != null;
+    return this.rest.getAuthorization() != null;
   }
 
   clear() {
-    this.rest.auth_token = null;
+    this.rest.clearStorage()
   }
 }

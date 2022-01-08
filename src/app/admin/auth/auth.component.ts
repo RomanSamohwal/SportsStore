@@ -23,7 +23,6 @@ export class AuthComponent implements OnInit {
       this.auth.authenticate(this.username, this.password)
         .subscribe(response => {
           if (response) {
-            debugger
             this.router.navigateByUrl("/admin/main");
           }
           this.errorMessage = "Authentication Failed";

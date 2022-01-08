@@ -10,17 +10,28 @@ import {HttpParams} from "@angular/common/http";
 })
 export class RestService {
 
-  auth_token!: string | null;
-  authorization: { [key: string]: string } = {"Authorization": "Bearer<" + this.auth_token?.toString() + ">"}
-
   constructor(private config: ConfigService) {
+  }
+
+  setAuthorization(auth_token: string): void {
+    localStorage.setItem('auth-token', JSON.stringify({"Authorization": "Bearer<" + auth_token + ">"}))
+  }
+
+  getAuthorization() {
+    let item = localStorage.getItem('auth-token')
+    if (item) return  JSON.parse(item)
+  }
+
+  clearStorage(){
+    localStorage.clear()
   }
 
   authenticate(user: string, pass: string): Observable<boolean> {
     return this.config.post({
       patch: '/login',
-      body: {name: user, password: pass}}).pipe(map((response: any) => {
-      this.auth_token = response.success ? response.token : null
+      body: {name: user, password: pass}
+    }).pipe(map((response: any) => {
+      this.setAuthorization(response.token)
       return response.success;
     }))
   }
@@ -29,47 +40,48 @@ export class RestService {
     return this.config.get<Product[]>({
       path: '/products',
       params: new HttpParams(),
-      authorization: this.authorization
+      authorization: this.getAuthorization()
     })
   }
 
   saveProduct(product: Product): Observable<Product> {
-    return this.config.post<Product>({patch: '/products', body: product, authorization: this.authorization})
+    return this.config.post<Product>({patch: '/products', body: product, authorization: this.getAuthorization()})
   }
 
   updateProduct(product: Product): Observable<Product> {
     return this.config.put<Product>({
       patch: `/products/${product.id}`,
       body: product,
-      authorization: this.authorization
+      authorization: this.getAuthorization()
     })
   }
 
   deleteProduct(id: number): Observable<Product> {
-    return this.config.delete<Product>({path: `/products/${id}`})
+    return this.config.delete<Product>({path: `/products/${id}`, authorization: this.getAuthorization()})
   }
 
   getOrders(): Observable<Order[]> {
     return this.config.get<Order[]>({
       path: '/orders',
       params: new HttpParams(),
-      authorization: this.authorization
+      authorization: this.getAuthorization()
     })
   }
 
   deleteOrder(id: number): Observable<Order> {
-    return this.config.delete<Order>({path: `/orders/${id}`})
+
+    return this.config.delete<Order>({path: `/orders/${id}`, authorization: this.getAuthorization()})
   }
 
   updateOrder(order: Order): Observable<Order> {
     return this.config.put<Order>({
       patch: `/order/${order.id}`,
       body: order,
-      authorization: this.authorization
+      authorization: this.getAuthorization()
     })
   }
 
   saveOrder(order: Order): Observable<Order> {
-    return this.config.post({patch: '/orders', body: order, authorization: this.authorization});
+    return this.config.post({patch: '/orders', body: order, authorization: this.getAuthorization()});
   }
 }

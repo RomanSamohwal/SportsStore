@@ -50,8 +50,9 @@ export class ConfigService {
       }))
   }
 
-  delete<T>(prop: { path: string}): Observable<T> {
-    return this.http.delete(`${prop.path}`)
+  delete<T>(prop: { path: string, authorization?: { [key: string]: string } }): Observable<T> {
+    return this.http.delete(this.baseUrl + prop.path.toString(),
+      {headers: prop.authorization ? prop.authorization : {}})
       // @ts-ignore
       .pipe(catchError((err, caught) => {
         this.formatErrors(err)
